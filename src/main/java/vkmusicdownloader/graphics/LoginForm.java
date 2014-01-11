@@ -14,10 +14,12 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import logic.*;
 
+import static graphics.GraphicUtils.*;
+
 
 /**
  * Created with IntelliJ IDEA.
- * logic.User: St1ch
+ * logic.Person: St1ch
  * Date: 28.10.13
  * Time: 11:19
  * Package name: graphics
@@ -36,7 +38,7 @@ public class LoginForm
         primaryStage.setTitle(APP_NAME);
         primaryStage.setWidth(STAGE_WIDTH);
         primaryStage.setHeight(STAGE_HEIGHT);
-        GraphicUtils.setCentralPosition(primaryStage);
+        setCentralPosition(primaryStage);
 
         //header
         Text appHeader = new Text("Welcome to Music Downloader");
@@ -100,11 +102,9 @@ public class LoginForm
             @Override
             public void handle(ActionEvent actionEvent)
             {
-                Utils utils = new Utils();
-
                 User user;
                 String login = loginTextField.getText();
-                boolean isPhoneEntered = utils.isPhone(login);
+                boolean isPhoneEntered = Utils.isPhone(login);
                 String pass = passwordField.getText();
 
                 if(isPhoneEntered)

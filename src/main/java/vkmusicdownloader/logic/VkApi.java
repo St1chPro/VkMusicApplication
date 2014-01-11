@@ -13,8 +13,9 @@ import org.apache.http.impl.client.HttpClients;
 import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
+
+import static logic.Utils.getContent;
 
 /**
  * Created with IntelliJ IDEA.
@@ -32,18 +33,14 @@ public class VkApi
 {
 
     private CloseableHttpClient httpClient = HttpClients.createDefault();
-    private VkAccessToken accessToken;
     private UriCreator uriCreator;
     private String userId;
-    private Utils utils;
     private Gson gson;
 
     public VkApi(VkAccessToken accessToken)
     {
-        this.accessToken = accessToken;
         this.uriCreator = new UriCreator(accessToken.getAccessToken());
         this.userId = accessToken.getUserId();
-        this.utils = new Utils();
         this.gson = new Gson();
     }
 
@@ -71,7 +68,7 @@ public class VkApi
         {
             // получение сущности и контента из respons'a
             audioEntity = audioResponse.getEntity();
-            audioContent = utils.getContent(audioEntity);
+            audioContent = getContent(audioEntity);
 
             // получаем json объект из контента, а затем из объекта получаем json массив(name == "response"), содержащий vkAudio
             responseJsonObject = gson.fromJson(audioContent, JsonObject.class);
@@ -86,14 +83,11 @@ public class VkApi
                 record = gson.fromJson(jsonArrayOfVkAudio.get(i), VkAudio.class);
                 audioList.add(record);
             }
-        } catch(IOException e)
-        {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
-        } catch(UtilException e)
+        } catch(IOException | UtilException e)
         {
             e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-//        ArrayList<VkAudio> audioArrayList = new ArrayList<>(audioList);
+        //        ArrayList<VkAudio> audioArrayList = new ArrayList<>(audioList);
         return audioList;
     }
 
@@ -125,5 +119,6 @@ public class VkApi
         {
             System.out.println("Something wrong in 'downloadFile' method");
         }
+//        removeTagsFromSong(path);
     }
 }

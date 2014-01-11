@@ -6,7 +6,7 @@ import java.awt.*;
 
 /**
  * Created with IntelliJ IDEA.
- * logic.User: St1ch
+ * logic.Person: St1ch
  * Date: 02.11.13
  * Time: 21:39
  * Package name: graphics

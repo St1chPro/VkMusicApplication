@@ -4,31 +4,23 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import logic.VkApi;
 import logic.VkAudio;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
-import static javafx.application.Application.launch;
 
 /**
  * Created with IntelliJ IDEA.
- * logic.User: St1ch
+ * logic.Person: St1ch
  * Date: 03.11.13
  * Time: 20:52
  * Package name: graphics.applicationform
@@ -45,9 +37,10 @@ public class AppForm
     private BorderPane mainPane;
     private MenuBar menuBar;
     private TabPane tabPane;
-    private final List<VkAudio> downloadQueue = new LinkedList<>();
+    private List<VkAudio> downloadQueue = new ArrayList<>();
     private TableView<VkAudio> table;
-    ObservableList<VkAudio> audioList;
+    private ObservableList<VkAudio> audioList;
+    private Preferences preferencesDialog;
 
     public AppForm(VkApi api)
     {
@@ -73,59 +66,66 @@ public class AppForm
         appStage.show();
         tabPane.lookup(".headers-region").setStyle("-fx-effect: null;");
         tabPane.getStyleClass().add("floating");
+
+        preferencesDialog = new Preferences();
     }
 
     private TabPane createTabsPane()
     {
         //tab mainPane
+        //todo: extract every tab in external class
         TabPane tabs = new TabPane();
         tabs.setId("tabs");
-        //method of making the closing tabPane unavailable
+        //method making the closing tabPane unavailable
         tabs.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         //tab music
         Tab music = new Tab("Music");
 
-        //        table
+        //table
         table = new TableView<>();
         table.setEditable(false);
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        audioList = FXCollections.observableArrayList(api.getAudioList(200));
+        audioList = FXCollections.observableArrayList(api.getAudioList(6000));
 
-        //        columns
-        TableColumn artist = new TableColumn("Artist");
+        //columns
+        TableColumn<VkAudio, String> artist = new TableColumn("Artist");
         artist.setPrefWidth(150);
         artist.setCellValueFactory(new PropertyValueFactory<VkAudio, String>("artist"));
 
-        TableColumn title = new TableColumn("Title");
+        TableColumn<VkAudio, String> title = new TableColumn("Title");
         title.setPrefWidth(150);
         title.setCellValueFactory(new PropertyValueFactory<VkAudio, String>("title"));
 
-        TableColumn select = new TableColumn("Select");
-        select.setCellFactory(new Callback()
+        TableColumn<VkAudio, Boolean> select = new TableColumn("Select");
+
+        Callback<TableColumn<VkAudio, Boolean>, TableCell<VkAudio, Boolean>> booleanCellFactory = new Callback<TableColumn<VkAudio, Boolean>, TableCell<VkAudio, Boolean>>()
         {
             @Override
-            public Object call(Object o)
+            public TableCell<VkAudio, Boolean> call(TableColumn<VkAudio, Boolean> p)
             {
-                return new CheckboxCell();
+                return new CheckBoxCell();
             }
-        });
+        };
+        select.setCellValueFactory(new PropertyValueFactory<VkAudio, Boolean>("select"));
+        select.setCellFactory(booleanCellFactory);
+
+        select.setEditable(false);
+        select.setSortable(false);
         table.setItems(audioList);
-
-
         table.getColumns().addAll(artist, title, select);
-
         table.setPrefHeight(STAGE_HEIGHT);
 
         music.setContent(table);
 
         //tab photo
-        Tab photo = new Tab("Photo");
+        //        Tab photo = new Tab("Photo");
         //tab video
-        Tab video = new Tab("Video");
+        //        Tab video = new Tab("Video");
 
         tabs.setTabMinWidth(100);
-        tabs.getTabs().addAll(music, photo, video);
+        tabs.getTabs().add(music);
+        //        tabs.getTabs().addAll(music, photo, video);
         return tabs;
     }
 
@@ -137,7 +137,7 @@ public class AppForm
         Menu menu = new Menu("Menu");
         MenuItem logout = new MenuItem("Log out");
         MenuItem preferences = new MenuItem("Preferences");
-        MenuItem download = new MenuItem("download");
+        MenuItem download = new MenuItem("Download");
         MenuItem exit = new MenuItem("Exit");
         menu.getItems().addAll(logout, preferences, download, exit);
 
@@ -156,7 +156,8 @@ public class AppForm
             @Override
             public void handle(ActionEvent actionEvent)
             {
-                preferencesDialog();
+                preferencesDialog.init();
+
             }
         });
 
@@ -174,13 +175,9 @@ public class AppForm
             @Override
             public void handle(ActionEvent actionEvent)
             {
-                for(int i = 0; i < downloadQueue.size(); i++)
-                {
-                    api.downloadFile(downloadQueue.get(i).getUrl(),
-                                     "D:/music/" + downloadQueue.get(i).getArtist() + "-" + downloadQueue.get(i)
-                                                                                                         .getTitle() + ".mp3");
-                }
-                System.out.println("complete");
+                String path = preferencesDialog.getDirectory().toString();
+                System.out.println(path);
+                downloadSong(path);
             }
         });
 
@@ -203,43 +200,68 @@ public class AppForm
         return menuBar;
     }
 
+    private void downloadSong(String path)
+    {
+        System.out.println("Download started...");
+        for(int i = 0; i < downloadQueue.size(); i++)
+        {
+            api.downloadFile(downloadQueue.get(i).getUrl(), new StringBuilder().append(path)
+                                                                               .append("/")
+                                                                               .append(downloadQueue.get(i).getArtist())
+                                                                               .append("-")
+                                                                               .append(downloadQueue.get(i).getTitle())
+                                                                               .append(".mp3")
+                                                                               .toString());
+        }
+        System.out.println("Complete!");
+    }
+
     private void helpDialog()
     {
-
-
     }
 
-    private void preferencesDialog()
+    class CheckBoxCell extends TableCell<VkAudio, Boolean>
     {
+        private CheckBox checkbox = new CheckBox();
 
-    }
-
-    class CheckboxCell extends TableCell<VkAudio, Boolean>
-    {
-        private CheckBox checkBox;
-
-        CheckboxCell()
+        public CheckBoxCell()
         {
-            checkBox = new CheckBox();
-            checkBox.setAlignment(Pos.CENTER);
-            setListener();
-            this.setGraphic(checkBox);
-        }
-
-        private void setListener()
-        {
-            checkBox.setOnAction(new EventHandler<ActionEvent>()
+            checkbox.setOnAction(new EventHandler<ActionEvent>()
             {
                 @Override
                 public void handle(ActionEvent actionEvent)
                 {
-                    if(!checkBox.isSelected())
+                    if(!checkbox.isSelected())
                     {
+                        downloadQueue.remove(table.getItems().get(getTableRow().getIndex()));
+                        VkAudio audio = getTableView().getItems().get(getTableRow().getIndex());
+                        audio.setSelect(false);
+                    } else
+                    {
+                        downloadQueue.add(table.getItems().get(getTableRow().getIndex()));
+                        VkAudio audio = getTableView().getItems().get(getTableRow().getIndex());
+                        audio.setSelect(true);
                     }
-                    System.out.println(downloadQueue.toString());
+                    System.out.println(downloadQueue);
                 }
             });
         }
-    }
 
+        @Override
+        protected void updateItem(Boolean item, boolean empty)
+        {
+            super.updateItem(item, empty);
+            if(!empty && item != null)
+            {
+                checkbox.setAlignment(Pos.CENTER);
+                checkbox.setSelected(item);
+                setAlignment(Pos.CENTER);
+                setGraphic(checkbox);
+            }
+        }
+    }
 }
+
+
+
+

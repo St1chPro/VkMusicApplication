@@ -22,6 +22,7 @@ public class VkAudio
     private int lyrics_id;
     private int album;
     private int genre;
+    private boolean select;
 
     /**
      * @param aid       record id
@@ -45,6 +46,7 @@ public class VkAudio
         this.lyrics_id = lyrics_id;
         this.album = album;
         this.genre = genre;
+        this.select = false;
     }
 
     public long getAid()
@@ -108,4 +110,13 @@ public class VkAudio
                 ']';
     }
 
+    public boolean isSelect()
+    {
+        return select;
+    }
+
+    public void setSelect(boolean select)
+    {
+        this.select = select;
+    }
 }
