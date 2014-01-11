@@ -23,8 +23,9 @@ import javafx.stage.Stage;
  * Package name: graphics
  * Project name: VkMusicApplication
  */
-public class About extends Application
+public class About
 {
+    private Stage primaryStage;
     private static final String TITLE = "About";
     private static final String APPLICATION_NAME = "VK Music Downloader";
     private static final String VERSION = "1.0";
@@ -35,9 +36,9 @@ public class About extends Application
     private static final double WIDTH = 290;
 
 
-    @Override
-    public void start(final Stage primaryStage) throws Exception
+    About()
     {
+        primaryStage = new Stage();
         primaryStage.setTitle(TITLE);
         primaryStage.setHeight(HEIGHT);
         primaryStage.setWidth(WIDTH);
@@ -92,10 +93,5 @@ public class About extends Application
         Scene scene = new Scene(mainPane);
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
-
-    public static void main(String[] args)
-    {
-         launch(args);
     }
 }

@@ -186,12 +186,12 @@ public class AppForm
         MenuItem about = new MenuItem("About");
         help.getItems().add(about);
 
-        help.setOnAction(new EventHandler<ActionEvent>()
+        about.setOnAction(new EventHandler<ActionEvent>()
         {
             @Override
             public void handle(ActionEvent actionEvent)
             {
-                helpDialog();
+                new About();
             }
         });
 
@@ -214,10 +214,6 @@ public class AppForm
                                                                                .toString());
         }
         System.out.println("Complete!");
-    }
-
-    private void helpDialog()
-    {
     }
 
     class CheckBoxCell extends TableCell<VkAudio, Boolean>
