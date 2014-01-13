@@ -9,6 +9,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.blinkenlights.jid3.ID3Exception;
+import org.blinkenlights.jid3.MP3File;
 
 import java.io.*;
 import java.net.URI;
@@ -119,6 +121,14 @@ public class VkApi
         {
             System.out.println("Something wrong in 'downloadFile' method");
         }
-//        removeTagsFromSong(path);
+
+        MP3File mp3 = new MP3File(new File(path));
+        try
+        {
+            mp3.removeTags();
+        } catch(ID3Exception e)
+        {
+        }
+
     }
 }
